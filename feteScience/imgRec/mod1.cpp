@@ -15,15 +15,16 @@ void showInputWindow();
 void showCannyWindow();
 void showContourWindow();
 void killContourAndChildren(int contour);
+double realContourArea(int contour);
 
 int displayedPicture=0; // image actuellement affichée
 
 // Paramètres de Canny :
 
-int lowThreshold=43; // gradient eliminatoire
-int hystSize=30; // bande passante avant le gradient qualifiant
-int apertureSize=3;
-bool L2Gradient=true;
+int lowThreshold=68; // gradient eliminatoire
+int hystSize=170; // bande passante avant le gradient qualifiant
+int apertureSize=3; // taille de la matrice de floutage
+bool L2Gradient=true; // utilisation ou non d'un calcul amélioré du gradient
 
 int lowNegligeable=10;
 int const max_lowThreshold = 500;
@@ -31,15 +32,10 @@ int const max_hystSize = 300;
 int const max_Negligeable = 100;
 const char* window_name = "Parametres du traitement";
 
-int thresh = 40;
-int max_thresh = 120;
-Mat img_rgb,img_gray,img_bw,canny_output,drawing;
-Mat _img;
+Mat img_rgb,canny_output,drawing;
 
 vector<vector<Point> > contours;
 vector<Vec4i> hierarchy;
-vector<Point> approxShape;
-vector<vector<int> > sons;
 
 int main(int argc, char *argv[]){
 	srand (time(NULL));
@@ -50,15 +46,11 @@ int main(int argc, char *argv[]){
 	namedWindow(window_name, WINDOW_NORMAL); // nouvelle fenêtre
 	cv::setWindowProperty(window_name, WND_PROP_FULLSCREEN, WINDOW_FULLSCREEN);	
 	showInputWindow();
-	
-	Scalar meanColor = mean(img_rgb);
-	
-	lowThreshold = (meanColor[0]+meanColor[1]+meanColor[1])/4;
 		
-	cv::createTrackbar( "Minimum de Canny :", window_name, &lowThreshold, max_lowThreshold, drawStuff ); // barre du pas pour Canny
-	cv::createTrackbar( "Taille de la bande de Canny :", window_name, &hystSize, max_hystSize, drawStuff );
-	cv::createTrackbar( "Reduction du bruit :", window_name, &lowNegligeable, max_Negligeable, drawStuff ); // barre du pourcentage d'aire négligeable pour nettoyage
-	cv::createTrackbar( "Filtre - 0=Image de depart, 1=Canny, 2=Contours :", window_name, &displayedPicture, 2, displayPicture); // image affichée
+	cv::createTrackbar("Minimum de Canny :", window_name, &lowThreshold, max_lowThreshold, drawStuff ); // barre du pas pour Canny
+	cv::createTrackbar("Taille de la bande de Canny :", window_name, &hystSize, max_hystSize, drawStuff );
+	cv::createTrackbar("Reduction du bruit :", window_name, &lowNegligeable, max_Negligeable, drawStuff ); // barre du pourcentage d'aire négligeable pour nettoyage
+	cv::createTrackbar("Filtre - 0=Image de depart, 1=Canny, 2=Contours :", window_name, &displayedPicture, 2, displayPicture); // image affichée
 	
 	drawStuff(0,0);
 	
@@ -82,8 +74,8 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 		int j = hierarchy[i][2]; // on prend son premier fils
 		if (j>=0){ // s'il existe
 			do {
-				double areaI = contourArea(contours[i],false);
-				double areaJ = contourArea(contours[j],false);
+				double areaI = realContourArea(i);
+				double areaJ = realContourArea(j);
 				if(areaJ<=(areaI*lowNegligeable/1000)){ // si l'aire de j est bien plus petite que celle de i...
 				
 					//drawContours(drawing, contours, i, Scalar(grays[i],grays[i],grays[i]), CV_FILLED);   // fill one gray per contour
@@ -101,6 +93,7 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 	drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
 	for(size_t i = 0; i < contours.size(); i++){
 		int k = (i+1)*10%255;
+		//int k = rand()%255;
 		drawContours(drawing, contours, i, Scalar(k,k,k), CV_FILLED);   // fill one gray per contour
 	}
 	
@@ -139,6 +132,7 @@ void killContourAndChildren(int contour){
 		else if(i != contour) // sinon, si on est dans un enfant, on est dans le plus petit
 		{
 			toKill.push_back(i); // on va tuer i;
+			
 			j = hierarchy[i][0];
 			if(j >= 0) // s'il avait un voisin
 			{
@@ -156,20 +150,39 @@ void killContourAndChildren(int contour){
 	
 	// on est remonté à i, il faut modifier son prochain voisin :
 	int ii = hierarchy[i][0];
-	if(ii >= 0) hierarchy[ii][1] = -1;
+	if(ii >= 0) hierarchy[ii][1] = hierarchy[i][1];
 	
 	// son précédent :
 	ii = hierarchy[i][1];
-	if(ii >= 0) hierarchy[ii][0] = -1;
+	if(ii >= 0) hierarchy[ii][0] = hierarchy[i][0];
 	
 	// et son père :
 	ii = hierarchy[i][3];
-	if(ii >= 0) hierarchy[ii][2] = -1;
+	if(ii >= 0) hierarchy[ii][2] = hierarchy[i][0];
 	
 	// enfin, on peut tuer tout le monde :
 	
 	for(int index = 0; index < toKill.size(); index++) contours[toKill[index]].clear();
 	
+}
+
+double realContourArea(int contour)
+{
+	if(contours[contour].empty()) return 0;
+	
+	double childrenArea = 0;
+	int i = hierarchy[contour][2];
+	while(i >= 0)
+	{
+		if(!contours[i].empty()) // si le contour n'a pas été effacé
+		{//cout << "test" << contour << "-" << i << endl;
+			childrenArea += contourArea(contours[i],false);
+		}
+		
+		i = hierarchy[i][0]; // next
+	}
+	
+	return (contourArea(contours[contour],false) - childrenArea);
 }
 
 void showInputWindow(){
