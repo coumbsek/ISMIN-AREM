@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 using namespace cv;
 using namespace std;
@@ -15,10 +16,18 @@ void showCannyWindow();
 void showContourWindow();
 void killContourAndChildren(int contour);
 
-int displayedPicture=0; // image affichée
-int lowThreshold=43;
+int displayedPicture=0; // image actuellement affichée
+
+// Paramètres de Canny :
+
+int lowThreshold=43; // gradient eliminatoire
+int hystSize=30; // bande passante avant le gradient qualifiant
+int apertureSize=3;
+bool L2Gradient=true;
+
 int lowNegligeable=10;
-int const max_lowThreshold = 100;
+int const max_lowThreshold = 500;
+int const max_hystSize = 300;
 int const max_Negligeable = 100;
 const char* window_name = "Parametres du traitement";
 
@@ -33,18 +42,22 @@ vector<Point> approxShape;
 vector<vector<int> > sons;
 
 int main(int argc, char *argv[]){
+	srand (time(NULL));
+	
 	img_rgb  = imread(argv[1]); // charge l'image passée en paramètre (img_rgb)
 	
-	blur( img_rgb, img_rgb, Size(3,3) ); // floute l'image
-	namedWindow( window_name, WINDOW_AUTOSIZE ); // nouvelle fenêtre
+	//blur( img_rgb, img_rgb, Size(3,3) ); // floute l'image
+	namedWindow(window_name, WINDOW_NORMAL); // nouvelle fenêtre
+	cv::setWindowProperty(window_name, WND_PROP_FULLSCREEN, WINDOW_FULLSCREEN);	
 	showInputWindow();
 	
 	Scalar meanColor = mean(img_rgb);
 	
 	lowThreshold = (meanColor[0]+meanColor[1]+meanColor[1])/4;
 		
-	cv::createTrackbar( "Pas de Canny :", window_name, &lowThreshold, max_lowThreshold, drawStuff ); // barre du pas pour Canny
-	cv::createTrackbar( "Aire negligeable :", window_name, &lowNegligeable, max_Negligeable, drawStuff ); // barre du pourcentage d'aire négligeable pour nettoyage
+	cv::createTrackbar( "Minimum de Canny :", window_name, &lowThreshold, max_lowThreshold, drawStuff ); // barre du pas pour Canny
+	cv::createTrackbar( "Taille de la bande de Canny :", window_name, &hystSize, max_hystSize, drawStuff );
+	cv::createTrackbar( "Reduction du bruit :", window_name, &lowNegligeable, max_Negligeable, drawStuff ); // barre du pourcentage d'aire négligeable pour nettoyage
 	cv::createTrackbar( "Filtre - 0=Image de depart, 1=Canny, 2=Contours :", window_name, &displayedPicture, 2, displayPicture); // image affichée
 	
 	drawStuff(0,0);
@@ -60,14 +73,14 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 	
 	cout << "--------" << endl;
 	
-	Canny( img_rgb, canny_output, lowThreshold, lowThreshold*1.5, 3 ); // filtre de Canny dans canny-output
+	Canny( img_rgb, canny_output, lowThreshold, lowThreshold+hystSize, apertureSize, L2Gradient); // filtre de Canny dans canny-output
 	cv::dilate(canny_output, canny_output, cv::Mat(), cv::Point(-1,-1)); // dilate chaque pixel dans une matrice 3*3
 
-	findContours( canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) ); // -> contours
+	findContours( canny_output, contours, hierarchy, CV_RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) ); // -> contours
 	
-	for(int i = 0; i<contours.size(); i++){
-		int j = hierarchy[i][2]; // premier fils
-		if (j>=0){ // si i a un fils
+	for(int i = 0; i<contours.size(); i++){ // pour chaque contour
+		int j = hierarchy[i][2]; // on prend son premier fils
+		if (j>=0){ // s'il existe
 			do {
 				double areaI = contourArea(contours[i],false);
 				double areaJ = contourArea(contours[j],false);
@@ -76,8 +89,8 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 					//drawContours(drawing, contours, i, Scalar(grays[i],grays[i],grays[i]), CV_FILLED);   // fill one gray per contour
 					//printf("contour père %d : fils %d couleur %d aire %f\n",i, j,(i+i)*10%255,areas[i]);
 					
+					cout << "contour " << j << "(" << areaJ << ")" << " detruit dans " << i << "(" << areaI << ")" << endl;
 					killContourAndChildren(j);
-					cout << "contour " << j << " et enfants detruits dans " << i << endl;
 				}
 				j = hierarchy[j][0]; // prochain voisin
 			}while(j!=-1);
