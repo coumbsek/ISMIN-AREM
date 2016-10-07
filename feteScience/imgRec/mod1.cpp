@@ -77,6 +77,7 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 					//printf("contour père %d : fils %d couleur %d aire %f\n",i, j,(i+i)*10%255,areas[i]);
 					
 					killContourAndChildren(j);
+					cout << "contour " << j << " et enfants detruits dans " << i << endl;
 				}
 				j = hierarchy[j][0]; // prochain voisin
 			}while(j!=-1);
@@ -153,12 +154,9 @@ void killContourAndChildren(int contour){
 	if(ii >= 0) hierarchy[ii][2] = -1;
 	
 	// enfin, on peut tuer tout le monde :
-	if(toKill.size() > 1)
-	{
-	cout << "Pile a tuer pour " << contour << " :" << endl;
-	for(int index = 0; index < toKill.size(); index++) cout << toKill[index] << ",";
-	cout << endl;
-	}
+	
+	for(int index = 0; index < toKill.size(); index++) contours[toKill[index]].clear();
+	
 }
 
 void showInputWindow(){
