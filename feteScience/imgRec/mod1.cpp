@@ -99,8 +99,11 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 	if(selectedI != -1)
 	{
 		selectedI = selectedContour(clickPoint);
-		approxEpsilon = (double)approxEpsilonInt;
-		cv::approxPolyDP(contours[selectedI], approxPoly, approxEpsilon, true);
+		if(selectedI != -1)
+		{
+			approxEpsilon = (double)approxEpsilonInt;
+			cv::approxPolyDP(contours[selectedI], approxPoly, approxEpsilon, true);
+		}
 	}
 	drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
 	for(size_t i = 0; i < contours.size(); i++){
