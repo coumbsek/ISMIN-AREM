@@ -37,7 +37,7 @@ const char* window_name = "Parametres du traitement";
 Point clickPoint; // point où l'utilisateur a cliqué
 int selectedI = -1; // indice du contour selectionné par l'utilisateur
 
-Mat img_rgb,canny_output,drawing;
+Mat img_rgb,canny_output,drawing,rgb_copy;
 
 vector<vector<Point> > contours;
 vector<Vec4i> hierarchy;
@@ -50,7 +50,6 @@ int main(int argc, char *argv[]){
 	//blur( img_rgb, img_rgb, Size(3,3) ); // floute l'image
 	namedWindow(window_name, WINDOW_NORMAL); // nouvelle fenêtre
 	cv::setWindowProperty(window_name, WND_PROP_FULLSCREEN, WINDOW_FULLSCREEN);	
-	showInputWindow();
 		
 	cv::createTrackbar("Minimum de Canny :", window_name, &lowThreshold, max_lowThreshold, drawStuff ); // barre du pas pour Canny
 	cv::createTrackbar("Taille de la bande de Canny :", window_name, &hystSize, max_hystSize, drawStuff );
@@ -68,7 +67,7 @@ int main(int argc, char *argv[]){
 
 void drawStuff(int, void*){ // fonction appelée au début et à chaque changement des trackbar
 	
-	cout << "--------" << endl;
+	img_rgb.copyTo(rgb_copy);
 	
 	Canny( img_rgb, canny_output, lowThreshold, lowThreshold+hystSize, apertureSize, L2Gradient); // filtre de Canny dans canny-output
 	cv::dilate(canny_output, canny_output, cv::Mat(), cv::Point(-1,-1)); // dilate chaque pixel dans une matrice 3*3
@@ -92,32 +91,20 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 	}
 	
 	//dessin des contours :
+	if(selectedI != -1) selectedI = selectedContour(clickPoint);
 	drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
 	for(size_t i = 0; i < contours.size(); i++){
 		int k = (i+1)*10%255;
 		//int k = rand()%255;
 		if(i != selectedI) drawContours(drawing, contours, i, Scalar(k,k,k), CV_FILLED);   // fill one gray per contour
-		else drawContours(drawing, contours, i, Scalar(0,0,255), CV_FILLED);
+		else
+		{
+			drawContours(drawing, contours, i, Scalar(0,0,255), CV_FILLED);
+			drawContours(rgb_copy, contours, i, Scalar(0,0,255), 1);
+		}
 	}
 	
 	displayPicture(0,NULL);
-}
-
-void displayPicture(int, void*){
-	switch(displayedPicture)
-	{
-		case 0:
-		showInputWindow();
-		break;
-		
-		case 1:
-		showCannyWindow();
-		break;
-		
-		case 2:
-		showContourWindow();
-		break;
-	}
 }
 
 void killContourAndChildren(int contour){
@@ -235,8 +222,25 @@ void onMouse(int event, int x, int y, int, void*)
     else return;
 }
 
+void displayPicture(int, void*){
+	switch(displayedPicture)
+	{
+		case 0:
+		showInputWindow();
+		break;
+		
+		case 1:
+		showCannyWindow();
+		break;
+		
+		case 2:
+		showContourWindow();
+		break;
+	}
+}
+
 void showInputWindow(){
-	cv::imshow(window_name,img_rgb);	
+	cv::imshow(window_name,rgb_copy);	
 }
 
 void showCannyWindow(){
