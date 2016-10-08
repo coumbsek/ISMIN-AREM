@@ -16,6 +16,8 @@ void showCannyWindow();
 void showContourWindow();
 void killContourAndChildren(int contour);
 double realContourArea(int contour);
+int selectedContour(Point clickPoint);
+void onMouse(int event, int x, int y, int, void*);
 
 int displayedPicture=0; // image actuellement affichée
 
@@ -31,6 +33,9 @@ int const max_lowThreshold = 500;
 int const max_hystSize = 300;
 int const max_Negligeable = 100;
 const char* window_name = "Parametres du traitement";
+
+Point clickPoint; // point où l'utilisateur a cliqué
+int selectedI = -1; // indice du contour selectionné par l'utilisateur
 
 Mat img_rgb,canny_output,drawing;
 
@@ -54,9 +59,9 @@ int main(int argc, char *argv[]){
 	
 	drawStuff(0,0);
 	
-	cv::moveWindow	(window_name,0,0);
-	cv::moveWindow	("Canny",0,0);
-	cv::moveWindow	("Fill",0,0);
+	cv::moveWindow(window_name,0,0);
+	
+	cv::setMouseCallback(window_name, onMouse, 0);	
 	
 	cv::waitKey(0);
 }
@@ -77,9 +82,6 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 				double areaI = realContourArea(i);
 				double areaJ = realContourArea(j);
 				if(areaJ<=(areaI*lowNegligeable/1000)){ // si l'aire de j est bien plus petite que celle de i...
-				
-					//drawContours(drawing, contours, i, Scalar(grays[i],grays[i],grays[i]), CV_FILLED);   // fill one gray per contour
-					//printf("contour père %d : fils %d couleur %d aire %f\n",i, j,(i+i)*10%255,areas[i]);
 					
 					cout << "contour " << j << "(" << areaJ << ")" << " detruit dans " << i << "(" << areaI << ")" << endl;
 					killContourAndChildren(j);
@@ -94,7 +96,8 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 	for(size_t i = 0; i < contours.size(); i++){
 		int k = (i+1)*10%255;
 		//int k = rand()%255;
-		drawContours(drawing, contours, i, Scalar(k,k,k), CV_FILLED);   // fill one gray per contour
+		if(i != selectedI) drawContours(drawing, contours, i, Scalar(k,k,k), CV_FILLED);   // fill one gray per contour
+		else drawContours(drawing, contours, i, Scalar(0,0,255), CV_FILLED);
 	}
 	
 	displayPicture(0,NULL);
@@ -175,7 +178,7 @@ double realContourArea(int contour)
 	while(i >= 0)
 	{
 		if(!contours[i].empty()) // si le contour n'a pas été effacé
-		{//cout << "test" << contour << "-" << i << endl;
+		{
 			childrenArea += contourArea(contours[i],false);
 		}
 		
@@ -183,6 +186,53 @@ double realContourArea(int contour)
 	}
 	
 	return (contourArea(contours[contour],false) - childrenArea);
+}
+
+int selectedContour(Point clickPoint)
+{
+	int iMin = -1;
+	double minDist = -1;
+	
+	for(size_t i = 0; i < contours.size(); i++)
+	{
+		if(!contours[i].empty())
+		{
+			if(pointPolygonTest(contours[i], clickPoint, false) > 0)
+			{
+				if(!minDist == -1)
+				{
+					double distI = pointPolygonTest(contours[i], clickPoint, true);
+					if(minDist > distI)
+					{
+						minDist = distI;
+						iMin = i;
+					}
+				}
+				else
+				{
+					iMin = i;
+					minDist = pointPolygonTest(contours[iMin], clickPoint, true);
+				}
+			}
+		}
+	}
+	return iMin;
+}
+
+void onMouse(int event, int x, int y, int, void*)
+{
+    if(event == EVENT_LBUTTONDOWN)
+    {
+    	clickPoint = Point(x,y);
+    	selectedI = selectedContour(clickPoint);
+    	drawStuff(0,0);
+    }
+    else if(event == EVENT_RBUTTONDOWN)
+    {
+    	selectedI = -1;
+    	drawStuff(0,0);
+    }
+    else return;
 }
 
 void showInputWindow(){
