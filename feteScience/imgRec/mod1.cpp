@@ -29,6 +29,9 @@ int apertureSize=3; // taille de la matrice de floutage
 bool L2Gradient=true; // utilisation ou non d'un calcul amélioré du gradient
 
 int lowNegligeable=10;
+double approxEpsilon=10;
+int approxEpsilonInt=10;
+
 int const max_lowThreshold = 500;
 int const max_hystSize = 300;
 int const max_Negligeable = 100;
@@ -41,6 +44,7 @@ Mat img_rgb,canny_output,drawing,rgb_copy;
 
 vector<vector<Point> > contours;
 vector<Vec4i> hierarchy;
+vector<Point> approxPoly;
 
 int main(int argc, char *argv[]){
 	srand (time(NULL));
@@ -54,6 +58,7 @@ int main(int argc, char *argv[]){
 	cv::createTrackbar("Minimum de Canny :", window_name, &lowThreshold, max_lowThreshold, drawStuff ); // barre du pas pour Canny
 	cv::createTrackbar("Taille de la bande de Canny :", window_name, &hystSize, max_hystSize, drawStuff );
 	cv::createTrackbar("Reduction du bruit :", window_name, &lowNegligeable, max_Negligeable, drawStuff ); // barre du pourcentage d'aire négligeable pour nettoyage
+	cv::createTrackbar("Approximation :", window_name, &approxEpsilonInt, 50, drawStuff );
 	cv::createTrackbar("Filtre - 0=Image de depart, 1=Canny, 2=Contours :", window_name, &displayedPicture, 2, displayPicture); // image affichée
 	
 	drawStuff(0,0);
@@ -82,7 +87,7 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 				double areaJ = realContourArea(j);
 				if(areaJ<=(areaI*lowNegligeable/1000)){ // si l'aire de j est bien plus petite que celle de i...
 					
-					cout << "contour " << j << "(" << areaJ << ")" << " detruit dans " << i << "(" << areaI << ")" << endl;
+					//cout << "contour " << j << "(" << areaJ << ")" << " detruit dans " << i << "(" << areaI << ")" << endl;
 					killContourAndChildren(j);
 				}
 				j = hierarchy[j][0]; // prochain voisin
@@ -91,7 +96,12 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 	}
 	
 	//dessin des contours :
-	if(selectedI != -1) selectedI = selectedContour(clickPoint);
+	if(selectedI != -1)
+	{
+		selectedI = selectedContour(clickPoint);
+		approxEpsilon = (double)approxEpsilonInt;
+		cv::approxPolyDP(contours[selectedI], approxPoly, approxEpsilon, true);
+	}
 	drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
 	for(size_t i = 0; i < contours.size(); i++){
 		int k = (i+1)*10%255;
@@ -99,8 +109,9 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 		if(i != selectedI) drawContours(drawing, contours, i, Scalar(k,k,k), CV_FILLED);   // fill one gray per contour
 		else
 		{
-			drawContours(drawing, contours, i, Scalar(0,0,255), CV_FILLED);
-			drawContours(rgb_copy, contours, i, Scalar(0,0,255), 1);
+			cv::drawContours(drawing, contours, i, Scalar(0,0,255), CV_FILLED);
+			cv::drawContours(rgb_copy, contours, i, Scalar(0,0,255), 1);
+			cv::polylines(rgb_copy, approxPoly, true, Scalar(255,0,0), 1, LINE_8, 0);
 		}
 	}
 	
