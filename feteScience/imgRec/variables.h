@@ -36,5 +36,7 @@ vector<vector<Point> > contours;
 vector<Vec4i> hierarchy;
 vector<Point> approxPoly;
 
+vector<Point> approxConvex;
+
 int displayedPicture=0; // image actuellement affichée
 #endif
