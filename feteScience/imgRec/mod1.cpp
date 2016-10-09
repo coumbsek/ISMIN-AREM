@@ -18,6 +18,7 @@ void killContourAndChildren(int contour);
 double realContourArea(int contour);
 int selectedContour(Point clickPoint);
 void onMouse(int event, int x, int y, int, void*);
+void pathfinding();
 
 int displayedPicture=0; // image actuellement affichée
 
@@ -252,6 +253,8 @@ void displayPicture(int, void*){
 		break;
 	}
 }
+
+void pathfinding();
 
 void showInputWindow(){
 	cv::imshow(window_name,rgb_copy);	
