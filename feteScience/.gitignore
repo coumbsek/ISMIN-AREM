@@ -1,5 +1,2 @@
-#ignore all
-*
-
-#unignore with extension
-!*.*
+*.exe
+*.o
