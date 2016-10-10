@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 
 #include "variablesExt.h"
+#include "recContours.h"
 #include "pathfinding.h"
 
 using namespace cv;
@@ -42,20 +43,43 @@ void pathfinding(double offset)
 	
 	Point O = vec2Point(B1, vOffset); // à partir du point 0, on cherche ces points
 	Vector2d vB12 = points2Vec(B1,B2); // on a besoin de croiser vB12 avec vAB, on vérifie qu'ils ne sont pas colinéaires
+	Vector2d vA12 = points2Vec(A1,A2);
 	
+	if(vAB == vB12 || vAB == vA12 || vAB == vB12 * -1 || vAB == vA12 * -1) cout << "Vecteurs colineaires" << endl; // c'est possible
+	else
+	{	
+		Matrix4d MB;
+		MB << 1,-1*vAB[0],0,0,1,0,0,-1*vB12[0],0,-1*vAB[1],1,0,0,0,1,-1*vB12[1];
+		cout << "MB : " << endl << MB << endl;
 	
-	Matrix4d M;
-	M << 1,-1*vAB[0],0,0,1,0,0,-1*vB12[0],0,-1*vAB[1],1,0,0,0,1,-1*vB12[1];
-	cout << "M : " << endl << M << endl;
+		Vector4d CB;
+		CB << O.x,B1.x,O.y,B1.y;
+		cout << "CB : " << endl << CB << endl;
 	
-	Vector4d C;
-	C << O.x,B1.x,O.y,B1.y;
-	cout << "C : " << endl << C << endl;
-	
-	FullPivLU<Matrix4d> decompositionB(M);
+		FullPivLU<Matrix4d> decompositionB(MB);
 
-    	Vector4d XB = decompositionB.solve(C); // X : (x, t, y, t')
-    	cout << "XB : " << endl << XB << endl;
+	    	Vector4d XB = decompositionB.solve(CB); // X : (x, t, y, t')
+	    	cout << "XB : " << endl << XB << endl;
+	    	
+	    	Matrix4d MA;
+		MA << 1,-1*vAB[0],0,0,1,0,0,-1*vA12[0],0,-1*vAB[1],1,0,0,0,1,-1*vA12[1];
+		cout << "MA : " << endl << MA << endl;
+	
+		Vector4d CA;
+		CA << O.x,A1.x,O.y,A1.y;
+		cout << "CA : " << endl << CA << endl;
+	
+		FullPivLU<Matrix4d> decompositionA(MA);
+
+	    	Vector4d XA = decompositionA.solve(CA); // X : (x, t, y, t')
+	    	cout << "XA : " << endl << XA << endl;
+	    	
+	    	path.push_back(Point(XB[0],XB[2]));
+	    	path.push_back(Point(XA[0],XA[2]));
+	    	
+	    	cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
+	    	displayPicture(0,NULL);
+    	}
 }
 
 Point vec2Point(Point depart, Vector2d vec)
@@ -85,8 +109,8 @@ Vector2d offsetVector(Point A, Point B, double offset) // (unitaire) A et B sont
 	
 	Vector2d voffset;
 	
-	voffset[0] = (edge[1]) * offset;
-	voffset[1] = (-1 * edge[0]) * offset;
+	voffset[0] = (-1 * edge[1]) * offset;
+	voffset[1] = (edge[0]) * offset;
 	
 	return voffset;
 }
