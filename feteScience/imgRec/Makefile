@@ -4,7 +4,7 @@ recContours.o : recContours.cpp variablesExt.h recContours.h
 	g++ -o recContours.o -c recContours.cpp 
 	
 pathfinding.o : pathfinding.cpp variablesExt.h pathfinding.h
-	g++ -o pathfinding.o -c pathfinding.cpp 
+	g++ -I . -o pathfinding.o -c pathfinding.cpp 
 	
 mod1.o : mod1.cpp variables.h recContours.h
 	g++ `pkg-config --cflags opencv` -o mod1.o -c mod1.cpp `pkg-config --libs opencv`

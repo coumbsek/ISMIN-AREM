@@ -7,11 +7,14 @@
 #include <time.h>
 #include <cmath>
 
+#include <Eigen/Dense>
+
 #include "variablesExt.h"
 #include "pathfinding.h"
 
 using namespace cv;
 using namespace std;
+using namespace Eigen;
 
 void pathfinding(double offset)
 {
@@ -37,7 +40,21 @@ void pathfinding(double offset)
 	
 	// puis on recherche les points d'intersection de la parallèle à A1B1 décalée de vOffset
 	
-	Point O = vec2Point(B1, vOffset);
+	Point O = vec2Point(B1, vOffset); // à partir du point 0, on cherche ces points
+	Vect vB12 = points2Vec(B1,B2); // on a besoin de croiser vB12 avec vAB, on vérifie qu'ils ne sont pas colinéaires
+	
+	Matrix4d M;
+	M << 1,-1*vAB.x,0,0,1,0,0,-1*vB12.x,0,-1*vAB.y,1,0,0,0,1,-1*vB12.y;
+	cout << "M : " << endl << M << endl;
+	
+	Vector4d C;
+	C << O.x,B1.x,O.y,B1.y;
+	cout << "C : " << endl << C << endl;
+	
+	FullPivLU<Matrix4d> decomposition(M);
+
+    	Vector4d X = decomposition.solve(C);
+    	cout << "X : " << endl << X << endl;
 }
 
 Point vec2Point(Point depart, Vect vec)
