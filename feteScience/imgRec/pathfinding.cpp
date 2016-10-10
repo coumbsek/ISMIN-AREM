@@ -26,6 +26,7 @@ void pathfinding(double offset)
 	B2 = approxConvex[2];
 	
 	Vect vOffset = offsetVector(A1,B1,offset);
+	Vect vAB = points2Vec(A1,B1);
 	
 	path.clear();
 	
@@ -36,13 +37,13 @@ void pathfinding(double offset)
 	
 	// puis on recherche les points d'intersection de la parallèle à A1B1 décalée de vOffset
 	
-	
+	Point O = vec2Point(B1, vOffset);
 }
 
-Point vec2Point(Point depart, Vect vec, double lenght)
+Point vec2Point(Point depart, Vect vec)
 {
-	double lx = (double)depart.x + vec.x*lenght;
-	double ly = (double)depart.y + vec.y*lenght;
+	double lx = (double)depart.x + vec.x;
+	double ly = (double)depart.y + vec.y;
 	
 	return Point(ceil(lx),ceil(ly)); 
 }

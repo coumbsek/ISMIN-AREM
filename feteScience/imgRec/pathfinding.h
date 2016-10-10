@@ -13,7 +13,7 @@ struct Vect
 typedef struct Vect Vect;
 
 void pathfinding(double offset);
-Point vec2Point(Point depart, vector<double> vec, double lenght);
+Point vec2Point(Point depart, Vect vec);
 Vect points2Vec(Point A, Point B);
 Vect offsetVector(Point A, Point B, double offset);
 
