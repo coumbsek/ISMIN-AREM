@@ -16,7 +16,7 @@ using namespace std;
 void pathfinding(double offset)
 {
 	convexHull(approxPoly, approxConvex, false, false);
-	if(approxConvex.size() < 3) return;	
+	if(approxConvex.size() < 3) return;
 	
 	Point A1,A2,B1,B2,L1,L2;
 	
@@ -25,11 +25,16 @@ void pathfinding(double offset)
 	B1 = approxConvex[1];
 	B2 = approxConvex[2];
 	
-	// recherche de L1 (point de départ) :
-	
 	Vect vOffset = offsetVector(A1,B1,offset);
 	
+	path.clear();
+	
 	// on commence par aller de A1 à B1
+	
+	path.push_back(A1);
+	path.push_back(B1);
+	
+	// puis on recherche les points d'intersection de la parallèle à A1B1 décalée de vOffset
 	
 	
 }

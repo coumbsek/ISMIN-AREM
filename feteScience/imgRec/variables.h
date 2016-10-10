@@ -37,6 +37,7 @@ vector<Vec4i> hierarchy;
 vector<Point> approxPoly;
 
 vector<Point> approxConvex;
+vector<Point> path;
 
 int displayedPicture=0; // image actuellement affichée
 #endif
