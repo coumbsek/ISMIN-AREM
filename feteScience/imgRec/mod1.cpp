@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
 	
 	//blur( img_rgb, img_rgb, Size(3,3) ); // floute l'image
 	namedWindow(window_name, WINDOW_NORMAL); // nouvelle fenêtre
-	cv::setWindowProperty(window_name, WND_PROP_FULLSCREEN, WINDOW_FULLSCREEN);	
+	//cv::setWindowProperty(window_name, WND_PROP_FULLSCREEN, WINDOW_FULLSCREEN);	
 		
 	cv::createTrackbar("Minimum de Canny :", window_name, &lowThreshold, max_lowThreshold, drawStuff ); // barre du pas pour Canny
 	cv::createTrackbar("Taille de la bande de Canny :", window_name, &hystSize, max_hystSize, drawStuff );

@@ -19,6 +19,7 @@ using namespace Eigen;
 
 void pathfinding(double offset)
 {
+	cout << "--- Nouveau path ---" << endl;
 	convexHull(approxPoly, approxConvex, false, false);
 	if(approxConvex.size() < 3) return;
 	
@@ -28,6 +29,8 @@ void pathfinding(double offset)
 	A2 = approxConvex[approxConvex.size()-1];
 	B1 = approxConvex[1];
 	B2 = approxConvex[2];
+	size_t iB2 = 2;
+	size_t iA2 = approxConvex.size()-1;
 	
 	Vector2d vOffset = offsetVector(A1,B1,offset);
 	Vector2d vAB = points2Vec(A1,B1);
@@ -39,47 +42,156 @@ void pathfinding(double offset)
 	path.push_back(A1);
 	path.push_back(B1);
 	
-	// puis on recherche les points d'intersection de la parallèle à A1B1 décalée de vOffset
+	bool continuer = true;
+	bool altern = true;
 	
-	Point O = vec2Point(B1, vOffset); // à partir du point 0, on cherche ces points
-	Vector2d vB12 = points2Vec(B1,B2); // on a besoin de croiser vB12 avec vAB, on vérifie qu'ils ne sont pas colinéaires
-	Vector2d vA12 = points2Vec(A1,A2);
-	
-	if(vAB == vB12 || vAB == vA12 || vAB == vB12 * -1 || vAB == vA12 * -1) cout << "Vecteurs colineaires" << endl; // c'est possible
-	else
+	while(continuer)
 	{	
-		Matrix4d MB;
-		MB << 1,-1*vAB[0],0,0,1,0,0,-1*vB12[0],0,-1*vAB[1],1,0,0,0,1,-1*vB12[1];
-		cout << "MB : " << endl << MB << endl;
+		// on recherche les points d'intersection de la parallèle à A1B1 décalée de vOffset
 	
-		Vector4d CB;
-		CB << O.x,B1.x,O.y,B1.y;
-		cout << "CB : " << endl << CB << endl;
+		Point O = vec2Point(B1, vOffset); // à partir du point 0, on cherche ces points
+		Vector2d vB12 = points2Vec(B1,B2); // on a besoin de croiser vB12 avec vAB, on vérifie qu'ils ne sont pas colinéaires
+		Vector2d vA12 = points2Vec(A1,A2);
 	
-		FullPivLU<Matrix4d> decompositionB(MB);
+		if(vAB == vB12 || vAB == vA12 || vAB == vB12 * -1 || vAB == vA12 * -1) continuer = false; // c'est possible mais ça signifie qu'on est arrivé au bout du champ
+		else
+		{	
+			Matrix4d MB;
+			MB << 1,-1*vAB[0],0,0,1,0,0,-1*vB12[0],0,-1*vAB[1],1,0,0,0,1,-1*vB12[1];
+			//cout << "MB : " << endl << MB << endl;
+	
+			Vector4d CB;
+			CB << O.x,B1.x,O.y,B1.y;
+			//cout << "CB : " << endl << CB << endl;
+	
+			FullPivLU<Matrix4d> decompositionB(MB);
 
-	    	Vector4d XB = decompositionB.solve(CB); // X : (x, t, y, t')
-	    	cout << "XB : " << endl << XB << endl;
-	    	
-	    	Matrix4d MA;
-		MA << 1,-1*vAB[0],0,0,1,0,0,-1*vA12[0],0,-1*vAB[1],1,0,0,0,1,-1*vA12[1];
-		cout << "MA : " << endl << MA << endl;
+		    	Vector4d XB = decompositionB.solve(CB); // X : (x, t, y, t')
+		    	cout << "XB : " << endl << XB << endl;
+		    	
+		    	Matrix4d MA;
+			MA << 1,-1*vAB[0],0,0,1,0,0,-1*vA12[0],0,-1*vAB[1],1,0,0,0,1,-1*vA12[1];
+			//cout << "MA : " << endl << MA << endl;
 	
-		Vector4d CA;
-		CA << O.x,A1.x,O.y,A1.y;
-		cout << "CA : " << endl << CA << endl;
+			Vector4d CA;
+			CA << O.x,A1.x,O.y,A1.y;
+			//cout << "CA : " << endl << CA << endl;
 	
-		FullPivLU<Matrix4d> decompositionA(MA);
+			FullPivLU<Matrix4d> decompositionA(MA);
 
-	    	Vector4d XA = decompositionA.solve(CA); // X : (x, t, y, t')
-	    	cout << "XA : " << endl << XA << endl;
-	    	
-	    	path.push_back(Point(XB[0],XB[2]));
-	    	path.push_back(Point(XA[0],XA[2]));
-	    	
-	    	cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
-	    	displayPicture(0,NULL);
+		    	Vector4d XA = decompositionA.solve(CA); // X : (x, t, y, t')
+		    	cout << "XA : " << endl << XA << endl;
+		    	
+		    	Point BB = Point(XB[0],XB[2]);
+		    	Point AA = Point(XA[0],XA[2]);	    	
+		    	
+		    	// il faut regarder si on est sorti de l'une des deux arêtes
+		    	
+		    	Vector2d vNBB = points2VecN(B1,BB);
+		    	Vector2d vNAA = points2VecN(A1,AA);
+		    	Vector2d vNB12 = points2VecN(B1,B2);
+		    	Vector2d vNA12 = points2VecN(A1,A2);
+		    	
+		    	if(vNBB.squaredNorm() > vNB12.squaredNorm())
+		    	{
+		    		iB2++;
+		    		B1 = B2;
+		    		B2 = approxConvex[iB2];
+		    	}
+		    	else
+		    	{
+		    		B1 = BB;
+		    	}
+		    	
+		    	if(vNAA.squaredNorm() > vNA12.squaredNorm())
+		    	{
+		    		iA2--;
+		    		A1 = A2;
+		    		A2 = approxConvex[iA2];
+		    	}
+		    	else
+		    	{
+		    		A1 = AA;
+		    	}
+		    	
+		    	if(iA2 < iB2) // on est arrivé au bout du champ
+		    	{
+		    		continuer = false;
+		    		cout << "iA2:"<<iA2<<"<iB2:"<<iB2<<endl;
+		    	}
+		    	
+		    	// ici, on vérifie que nos points sont dans l'approxPoly, s'ils n'y sont pas, on les force à y rentrer.
+		    	double distAA = pointPolygonTest(approxPoly, AA, true);
+		    	if(distAA < 0)
+		    	{
+		    		// on cherche le point d'intersection entre AA-BB et l'approxPoly (à la bourrin)
+		    		int t = 0;
+		    		while(true)
+		    		{
+		    			t++;
+			    		Point AAA = vec2Point(AA, (t) * vAB);
+			    		double distAAA = pointPolygonTest(approxPoly, AAA, true);
+			    		if(distAA > distAAA) // on s'est éloigné du polygone, on arrête tout
+			    		{
+			    			//continuer = 0;
+			    			cout << "On s'est eloigne du polygone pour AA" << endl;
+			    			break;
+			    		}
+			    		else
+			    		AA = AAA;
+			    		
+			    		if(distAAA >= 0)
+			    		{
+			    			cout << "On est rentré dans le polygone pour AA" << endl;
+			    			break;
+			    		}
+		    		}
+		    	}
+		    	double distBB = pointPolygonTest(approxPoly, BB, true);
+		    	if(distBB < 0)
+		    	{
+		    		// on cherche le point d'intersection entre AA-BB et l'approxPoly (à la bourrin)
+		    		int t = 0;
+		    		while(true)
+		    		{
+		    			t++;
+			    		Point BBB = vec2Point(BB, (-1*t) * vAB);
+			    		double distBBB = pointPolygonTest(approxPoly, BBB, true);
+			    		if(distBB > distBBB) // on s'est éloigné du polygone, on arrête tout
+			    		{
+			    			//continuer = 0;
+			    			cout << "On s'est eloigne du polygone pour BB" << endl;
+			    			break;
+			    		}
+			    		else
+			    		BB = BBB;
+			    		
+			    		if(distBBB >= 0)
+			    		{
+			    			cout << "On est rentré dans le polygone pour BB" << endl;
+			    			break;
+			    		}
+		    		}
+		    	}
+		    	
+		    	if(altern)
+		    	{
+			    	path.push_back(BB);
+			    	path.push_back(AA);
+			    	cout << "nouveau trait : " << BB<< "-"<< AA<<endl;
+		    	}
+		    	else
+		    	{
+		    		path.push_back(AA);
+			    	path.push_back(BB);
+			    	cout << "nouveau trait : " << AA<< "-"<< BB<<endl;
+		    	}
+	    	}
+    	altern = !altern;
     	}
+    	
+    	cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
+	displayPicture(0,NULL);
 }
 
 Point vec2Point(Point depart, Vector2d vec)
@@ -99,6 +211,18 @@ Vector2d points2Vec(Point A, Point B) // transforme AB en vecteur unitaire
 	Vector2d V;
 	V[0] = moduleX/module;
 	V[1] = moduleY/module;
+	
+	return V;
+}
+
+Vector2d points2VecN(Point A, Point B) // transforme AB en vecteur normé
+{
+	double moduleX = (B.x - A.x);
+	double moduleY = (B.y - A.y);
+	
+	Vector2d V;
+	V[0] = moduleX;
+	V[1] = moduleY;
 	
 	return V;
 }
