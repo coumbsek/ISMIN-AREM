@@ -24,32 +24,41 @@ void pathfinding(double offset)
 	
 	// recherche de L1 (point de départ) :
 	
-	Point o1 = vec2Point(A1,,offset)
+	//Point o1 = vec2Point(A1,,offset)
 	
 	
 }
 
-Point vec2Point(Point depart, vector<double> vec, double lenght)
+Point vec2Point(Point depart, Vect vec, double lenght)
 {
-	double lx = (double)depart.x + vec[0]*lenght;
-	double ly = (double)depart.y + vec[1]*lenght;
+	double lx = (double)depart.x + vec.x*lenght;
+	double ly = (double)depart.y + vec.y*lenght;
 	
 	return Point(ceil(lx),ceil(ly)); 
 }
 
-vector<double> points2Vec(Point A, Point B)
+Vect points2Vec(Point A, Point B)
 {
 	double moduleX = (B.x - A.x);
 	double moduleY = (B.y - A.y);
 	double module = sqrt(moduleX*moduleX + moduleY*moduleY);
 	
-	return Point(moduleX/module, moduleY/module);
+	Vect V;
+	V.x = moduleX/module;
+	V.y = moduleY/module;
+	
+	return V;
 }
 
-vector<double> offsetVector(Point current, Point next, Point previous) // il doit être perpendiculaire et dans le bon sens
+Vect offsetVector(Point A, Point B) // A et B sont les points de l'arrête à couper, leur ordre spatial ne change pas, et le polygone est codé en sens horraire
 {
-	vector<double> test;
-	return test;
+	Vect edge = points2vec(A,B);
+	
+	Vect offset;
+	
+	
+	
+	return offset;
 }
 
 

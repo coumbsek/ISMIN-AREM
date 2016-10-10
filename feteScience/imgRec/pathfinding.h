@@ -4,10 +4,18 @@
 using namespace std;
 using namespace cv;
 
+struct Vect
+{
+	double x;
+	double y;
+};
+
+typedef struct Vect Vect;
+
 void pathfinding(double offset);
 Point vec2Point(Point depart, vector<double> vec, double lenght);
-vector<double> points2Vec(Point A, Point B);
-vector<double> offsetVector(Point current, Point next, Point previous);
+Vect points2Vec(Point A, Point B);
+Vect offsetVector(Point current, Point next, Point previous);
 
 
 #endif
