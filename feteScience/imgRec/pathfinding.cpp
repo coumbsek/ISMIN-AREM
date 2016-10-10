@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <math>
+#include <cmath>
 
 #include "variablesExt.h"
 #include "pathfinding.h"
@@ -15,14 +15,19 @@ using namespace std;
 
 void pathfinding(double offset)
 {
+	convexHull(approxPoly, approxConvex, false, false);
+	if(approxConvex.size() < 3) return;	
+	
 	Point A1,A2,B1,B2,L1,L2;
 	
 	A1 = approxConvex[0];
-	A2 = approxConvex[approxConvex.size()-1]
+	A2 = approxConvex[approxConvex.size()-1];
 	B1 = approxConvex[1];
 	B2 = approxConvex[2];
 	
 	// recherche de L1 (point de départ) :
+	
+	Vect vOffset = offsetVector(A1,B1,offset);
 	
 	//Point o1 = vec2Point(A1,,offset)
 	
@@ -50,16 +55,16 @@ Vect points2Vec(Point A, Point B) // transforme AB en vecteur unitaire
 	return V;
 }
 
-Vect offsetVector(Point A, Point B) // A et B sont les points de l'arrête à couper, leur ordre spatial ne change pas, et le polygone est codé en sens horraire
+Vect offsetVector(Point A, Point B, double offset) // (unitaire) A et B sont les points de l'arrête à couper, leur ordre spatial ne change pas, et le polygone est codé en sens horraire
 {
-	Vect edge = points2vec(A,B);
+	Vect edge = points2Vec(A,B);
 	
-	Vect offset;
+	Vect voffset;
 	
-	offset.x = edge.y;
-	offset.y = -1 * edge.x;
+	voffset.x = (edge.y) * offset;
+	voffset.y = (-1 * edge.x) * offset;
 	
-	return offset;
+	return voffset;
 }
 
 

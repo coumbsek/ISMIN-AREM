@@ -161,22 +161,6 @@ int selectedContour(Point clickPoint)
 	return iMin;
 }
 
-void onMouse(int event, int x, int y, int, void*)
-{
-    if(event == EVENT_LBUTTONDOWN)
-    {
-    	clickPoint = Point(x,y);
-    	selectedI = selectedContour(clickPoint);
-    	drawStuff(0,0);
-    }
-    else if(event == EVENT_RBUTTONDOWN)
-    {
-    	selectedI = -1;
-    	drawStuff(0,0);
-    }
-    else return;
-}
-
 void displayPicture(int, void*){
 	switch(displayedPicture)
 	{
@@ -193,8 +177,6 @@ void displayPicture(int, void*){
 		break;
 	}
 }
-
-void pathfinding();
 
 void showInputWindow(){
 	cv::imshow(window_name,rgb_copy);	
