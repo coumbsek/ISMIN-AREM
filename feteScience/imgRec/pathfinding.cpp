@@ -51,3 +51,5 @@ vector<double> offsetVector(Point current, Point next, Point previous) // il doi
 	vector<double> test;
 	return test;
 }
+
+
