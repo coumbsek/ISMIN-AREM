@@ -37,7 +37,7 @@ Point vec2Point(Point depart, Vect vec, double lenght)
 	return Point(ceil(lx),ceil(ly)); 
 }
 
-Vect points2Vec(Point A, Point B)
+Vect points2Vec(Point A, Point B) // transforme AB en vecteur unitaire
 {
 	double moduleX = (B.x - A.x);
 	double moduleY = (B.y - A.y);
@@ -56,7 +56,8 @@ Vect offsetVector(Point A, Point B) // A et B sont les points de l'arrête à co
 	
 	Vect offset;
 	
-	
+	offset.x = edge.y;
+	offset.y = -1 * edge.x;
 	
 	return offset;
 }
