@@ -7,6 +7,7 @@
 #include <time.h>
 #include "variables.h"
 #include "recContours.h"
+#include "pathfinding.h"
 
 using namespace cv;
 using namespace std;
