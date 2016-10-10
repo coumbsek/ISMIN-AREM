@@ -29,7 +29,7 @@ void pathfinding(double offset)
 	
 	Vect vOffset = offsetVector(A1,B1,offset);
 	
-	//Point o1 = vec2Point(A1,,offset)
+	// on commence par aller de A1 à B1
 	
 	
 }
