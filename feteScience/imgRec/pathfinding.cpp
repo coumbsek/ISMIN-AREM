@@ -57,7 +57,10 @@ void pathfinding(double offset)
 		else
 		{	
 			Matrix4d MB;
-			MB << 1,-1*vAB[0],0,0,1,0,0,-1*vB12[0],0,-1*vAB[1],1,0,0,0,1,-1*vB12[1];
+			MB << 	1,-1*vAB[0],0,0,
+				1,0,0,-1*vB12[0],
+				0,-1*vAB[1],1,0,
+				0,0,1,-1*vB12[1];
 			//cout << "MB : " << endl << MB << endl;
 	
 			Vector4d CB;
@@ -70,7 +73,10 @@ void pathfinding(double offset)
 		    	cout << "XB : " << endl << XB << endl;
 		    	
 		    	Matrix4d MA;
-			MA << 1,-1*vAB[0],0,0,1,0,0,-1*vA12[0],0,-1*vAB[1],1,0,0,0,1,-1*vA12[1];
+			MA << 	1,-1*vAB[0],0,0,
+				1,0,0,-1*vA12[0],
+				0,-1*vAB[1],1,0,
+				0,0,1,-1*vA12[1];
 			//cout << "MA : " << endl << MA << endl;
 	
 			Vector4d CA;
