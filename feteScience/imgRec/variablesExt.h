@@ -27,6 +27,8 @@ extern int const max_hystSize;
 extern int const max_Negligeable;
 extern const char* window_name;
 
+extern double offsetLenght;
+
 extern Point clickPoint; // point où l'utilisateur a cliqué
 extern int selectedI; // indice du contour selectionné par l'utilisateur
 

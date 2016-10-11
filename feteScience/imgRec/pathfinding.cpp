@@ -206,14 +206,11 @@ void pathfinding(double offset)
     	altern = !altern;
     	cmpt++;
     	
-    	//cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
-	//displayPicture(0,NULL);
+    	cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
+	displayPicture(0,NULL);
     	
     	//cv::waitKey(0);
     	}
-    	
-    	cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
-	displayPicture(0,NULL);
 }
 
 Point vec2Point(Point depart, Vector2d vec)

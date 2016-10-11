@@ -27,6 +27,8 @@ int const max_hystSize = 300;
 int const max_Negligeable = 100;
 const char* window_name = "Parametres du traitement";
 
+double offsetLenght = 10;
+
 Point clickPoint; // point où l'utilisateur a cliqué
 int selectedI = -1; // indice du contour selectionné par l'utilisateur
 
