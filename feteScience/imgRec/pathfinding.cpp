@@ -45,11 +45,14 @@ void pathfinding(double offset)
 	bool continuer = true;
 	bool altern = true;
 	
+	Point B = B1;
+	int cmpt = 1;
+	
 	while(continuer)
 	{	
 		// on recherche les points d'intersection de la parallèle à A1B1 décalée de vOffset
 	
-		Point O = vec2Point(B1, vOffset); // à partir du point 0, on cherche ces points
+		Point O = vec2Point(B, vOffset*cmpt); // à partir du point 0, on cherche ces points
 		Vector2d vB12 = points2Vec(B1,B2); // on a besoin de croiser vB12 avec vAB, on vérifie qu'ils ne sont pas colinéaires
 		Vector2d vA12 = points2Vec(A1,A2);
 	
@@ -137,14 +140,14 @@ void pathfinding(double offset)
 		    		{
 		    			t++;
 			    		Point AAA = vec2Point(AA, t * vAB);
-			    		double distAAA = pointPolygonTest(approxPoly, AAA, true);
-			    		if(distAA > distAAA + 2) // on s'est éloigné du polygone, on arrête tout
+			    		double distAAA = pointPolygonTest(approxPoly, AAA, false);
+			    		/*if(distAA > distAAA + 10) // on s'est éloigné du polygone, on arrête tout
 			    		{
 			    			//continuer = 0;
 			    			cout << "On s'est eloigne du polygone pour AA" << endl;
 			    			break;
 			    		}
-			    		else
+			    		else*/
 			    		AA = AAA;
 			    		
 			    		if(distAAA >= 0)
@@ -164,13 +167,13 @@ void pathfinding(double offset)
 		    			t++;
 			    		Point BBB = vec2Point(BB, (-1*t) * vAB);
 			    		double distBBB = pointPolygonTest(approxPoly, BBB, true);
-			    		if(distBB > distBBB + 2) // on s'est éloigné du polygone, on arrête tout
+			    		/*if(distBB > distBBB + 10) // on s'est éloigné du polygone, on arrête tout
 			    		{
 			    			//continuer = 0;
 			    			cout << "On s'est eloigne du polygone pour BB" << endl;
 			    			break;
 			    		}
-			    		else
+			    		else*/
 			    		BB = BBB;
 			    		
 			    		if(distBBB >= 0)
@@ -195,6 +198,7 @@ void pathfinding(double offset)
 		    	}
 	    	}
     	altern = !altern;
+    	cmpt++;
     	
     	//cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
 	//displayPicture(0,NULL);
