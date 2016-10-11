@@ -56,7 +56,11 @@ void pathfinding(double offset)
 		Vector2d vB12 = points2Vec(B1,B2); // on a besoin de croiser vB12 avec vAB, on vérifie qu'ils ne sont pas colinéaires
 		Vector2d vA12 = points2Vec(A1,A2);
 	
-		if(vAB == vB12 || vAB == vA12 || vAB == vB12 * -1 || vAB == vA12 * -1) continuer = false; // c'est possible mais ça signifie qu'on est arrivé au bout du champ
+		if(vAB == vB12 || vAB == vA12 || vAB == vB12 * -1 || vAB == vA12 * -1)
+		{
+			cout << "vecteurs colineaires" << endl;
+			continuer = false; // c'est possible mais ça signifie qu'on est arrivé au bout du champ
+		}
 		else
 		{	
 			Matrix4d MB;
@@ -106,6 +110,7 @@ void pathfinding(double offset)
 		    		iB2++;
 		    		B1 = B2;
 		    		B2 = approxConvex[iB2];
+		    		if(iA2 >= iB2) continue;
 		    	}
 		    	else
 		    	{
@@ -117,6 +122,7 @@ void pathfinding(double offset)
 		    		iA2--;
 		    		A1 = A2;
 		    		A2 = approxConvex[iA2];
+		    		if(iA2 >= iB2) continue;
 		    	}
 		    	else
 		    	{
@@ -139,20 +145,20 @@ void pathfinding(double offset)
 		    		while(true)
 		    		{
 		    			t++;
-			    		Point AAA = vec2Point(AA, t * vAB);
-			    		double distAAA = pointPolygonTest(approxPoly, AAA, false);
-			    		/*if(distAA > distAAA + 10) // on s'est éloigné du polygone, on arrête tout
-			    		{
-			    			//continuer = 0;
-			    			cout << "On s'est eloigne du polygone pour AA" << endl;
-			    			break;
-			    		}
-			    		else*/
+			    		//Point AAA = vec2Point(AA, t * vAB);
+			    		Point AAA = vec2Point(AA, t * points2Vec(AA,BB));
+			    		double distAAA = pointPolygonTest(approxPoly, AAA, true);
+			    		
 			    		AA = AAA;
 			    		
 			    		if(distAAA >= 0)
 			    		{
 			    			cout << "On est rentré dans le polygone pour AA" << endl;
+			    			break;
+			    		}
+			    		else if(distAAA < distAA - 1000)
+			    		{
+			    			cout << "ERREUR : on s'eloigne !" << endl;
 			    			break;
 			    		}
 		    		}
@@ -165,20 +171,20 @@ void pathfinding(double offset)
 		    		while(true)
 		    		{
 		    			t++;
-			    		Point BBB = vec2Point(BB, (-1*t) * vAB);
+			    		//Point BBB = vec2Point(BB, (-1*t) * vAB);
+			    		Point BBB = vec2Point(BB, t * points2Vec(BB,AA));
 			    		double distBBB = pointPolygonTest(approxPoly, BBB, true);
-			    		/*if(distBB > distBBB + 10) // on s'est éloigné du polygone, on arrête tout
-			    		{
-			    			//continuer = 0;
-			    			cout << "On s'est eloigne du polygone pour BB" << endl;
-			    			break;
-			    		}
-			    		else*/
+			    		
 			    		BB = BBB;
 			    		
 			    		if(distBBB >= 0)
 			    		{
 			    			cout << "On est rentré dans le polygone pour BB" << endl;
+			    			break;
+			    		}
+			    		else if(distBBB < distBB - 1000)
+			    		{
+			    			cout << "ERREUR : on s'eloigne !" << endl;
 			    			break;
 			    		}
 		    		}
