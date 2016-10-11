@@ -20,12 +20,12 @@ using namespace Eigen;
 void pathfinding(double offset)
 {
 	cout << "--- Nouveau path ---" << endl;
-	convexHull(approxPoly, approxConvex, false, false);
-	if(approxConvex.size() < 3) return;
+	convexHull(approxPoly, approxConvex, false, false); // on approxime par un poly convexe
+	if(approxConvex.size() < 3) return; // si ce n'est pas au moins un triangle on sort
 	
 	Point A1,A2,B1,B2,L1,L2;
 	
-	A1 = approxConvex[0];
+	A1 = approxConvex[0]; 
 	A2 = approxConvex[approxConvex.size()-1];
 	B1 = approxConvex[1];
 	B2 = approxConvex[2];
@@ -118,6 +118,7 @@ void pathfinding(double offset)
 		    	{
 		    		continuer = false;
 		    		cout << "iA2:"<<iA2<<"<iB2:"<<iB2<<endl;
+		    		break;
 		    	}
 		    	
 		    	// ici, on vérifie que nos points sont dans l'approxPoly, s'ils n'y sont pas, on les force à y rentrer.
@@ -129,9 +130,9 @@ void pathfinding(double offset)
 		    		while(true)
 		    		{
 		    			t++;
-			    		Point AAA = vec2Point(AA, (t) * vAB);
+			    		Point AAA = vec2Point(AA, t * vAB);
 			    		double distAAA = pointPolygonTest(approxPoly, AAA, true);
-			    		if(distAA > distAAA) // on s'est éloigné du polygone, on arrête tout
+			    		if(distAA > distAAA + 2) // on s'est éloigné du polygone, on arrête tout
 			    		{
 			    			//continuer = 0;
 			    			cout << "On s'est eloigne du polygone pour AA" << endl;
@@ -157,7 +158,7 @@ void pathfinding(double offset)
 		    			t++;
 			    		Point BBB = vec2Point(BB, (-1*t) * vAB);
 			    		double distBBB = pointPolygonTest(approxPoly, BBB, true);
-			    		if(distBB > distBBB) // on s'est éloigné du polygone, on arrête tout
+			    		if(distBB > distBBB + 2) // on s'est éloigné du polygone, on arrête tout
 			    		{
 			    			//continuer = 0;
 			    			cout << "On s'est eloigne du polygone pour BB" << endl;
@@ -188,6 +189,11 @@ void pathfinding(double offset)
 		    	}
 	    	}
     	altern = !altern;
+    	
+    	//cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
+	//displayPicture(0,NULL);
+    	
+    	//cv::waitKey(0);
     	}
     	
     	cv::polylines(rgb_copy, path, false, Scalar(0,255,0), 1, LINE_8, 0);
