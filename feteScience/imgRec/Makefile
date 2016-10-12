@@ -12,8 +12,8 @@ mod1.o : mod1.cpp variables.h recContours.h
 mod1 : recContours.o pathfinding.o mod1.o
 	g++ -I . `pkg-config --cflags opencv` -o mod1.exe mod1.o recContours.o pathfinding.o `pkg-config --libs opencv`
 
-f.o : faceDetect.cpp variables.h recContours.h
-	g++ -I . `pkg-config --cflags opencv` -o f.o -c faceDetect.cpp `pkg-config --libs opencv`
+f.o : mod2.cpp variables.h recContours.h
+	g++ -I . `pkg-config --cflags opencv` -o f.o -c mod2.cpp `pkg-config --libs opencv`
 	
 f : recContours.o pathfinding.o f.o
 	g++ -I . `pkg-config --cflags opencv` -o f.exe f.o recContours.o pathfinding.o `pkg-config --libs opencv`
