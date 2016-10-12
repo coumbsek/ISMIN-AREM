@@ -41,5 +41,5 @@ vector<Point> approxPoly;
 vector<Point> approxConvex;
 vector<Point> path;
 
-int displayedPicture=0; // image actuellement affichée
+int displayedPicture=2; // image actuellement affichée
 #endif
