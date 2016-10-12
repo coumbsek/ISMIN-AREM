@@ -27,6 +27,8 @@ int const max_hystSize = 300;
 int const max_Negligeable = 100;
 const char* window_name = "Parametres du traitement";
 
+double offsetLenght = 10;
+
 Point clickPoint; // point où l'utilisateur a cliqué
 int selectedI = -1; // indice du contour selectionné par l'utilisateur
 
@@ -35,6 +37,9 @@ Mat img_rgb,canny_output,drawing,rgb_copy;
 vector<vector<Point> > contours;
 vector<Vec4i> hierarchy;
 vector<Point> approxPoly;
+
+vector<Point> approxConvex;
+vector<Point> path;
 
 int displayedPicture=0; // image actuellement affichée
 #endif

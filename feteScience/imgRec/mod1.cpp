@@ -7,9 +7,12 @@
 #include <time.h>
 #include "variables.h"
 #include "recContours.h"
+#include "pathfinding.h"
 
 using namespace cv;
 using namespace std;
+
+void onMouse(int event, int x, int y, int, void*);
 
 int main(int argc, char *argv[]){
 	srand (time(NULL));
@@ -33,5 +36,25 @@ int main(int argc, char *argv[]){
 	cv::setMouseCallback(window_name, onMouse, 0);	
 	
 	cv::waitKey(0);
+}
+
+void onMouse(int event, int x, int y, int, void*)
+{
+    if(event == EVENT_LBUTTONDOWN)
+    {
+    	clickPoint = Point(x,y);
+    	selectedI = selectedContour(clickPoint);
+    	drawStuff(0,0);
+    }
+    else if(event == EVENT_RBUTTONDOWN)
+    {
+    	selectedI = -1;
+    	drawStuff(0,0);
+    }
+    else if(event == EVENT_LBUTTONDBLCLK)
+    {
+    	pathfinding(offsetLenght);
+    }
+    else return;
 }
 
