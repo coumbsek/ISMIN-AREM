@@ -1,4 +1,4 @@
-all: recContours.o mod1.o mod1
+all: recContours.o mod1.o mod1 f.o f
 
 recContours.o : recContours.cpp variablesExt.h recContours.h
 	g++ -I . -o recContours.o -c recContours.cpp 
