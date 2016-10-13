@@ -37,15 +37,15 @@ void drawStuff(int, void*){ // fonction appelée au début et à chaque changeme
 	}
 	
 	//dessin des contours :
-	if(selectedI != -1)
-	{
+	//if(selectedI != -1)
+	//{
 		selectedI = selectedContour(clickPoint);
 		if(selectedI != -1)
 		{
 			approxEpsilon = (double)approxEpsilonInt;
 			cv::approxPolyDP(contours[selectedI], approxPoly, approxEpsilon, true);
 		}
-	}
+	//}
 	drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
 	for(size_t i = 0; i < contours.size(); i++){
 		int k = (i+1)*10%255;
