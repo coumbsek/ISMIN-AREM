@@ -73,12 +73,12 @@ void ini(){
 //	cv::waitKey(0);
 
 }
-
+/*
 Mat moyImgs(){
 	uchar R,G,B;
 	Mat s = img_rgb.clone();
-	for(int y; y<frame.row;y++){
-		for( int x ; x<frame.cols ; x++ )
+	for(int y; y<img_rgb.row;y++){
+		for( int x ; x<img_rgb.cols ; x++ )
 		{
 			Vec3b intensity0 = imgs[0].at<Vec3b>(y,x);
 			Vec3b intensity1 = imgs[1].at<Vec3b>(y,x);
@@ -95,7 +95,7 @@ Mat moyImgs(){
 	}
 	return s;
 }
-
+*/
     int process(VideoCapture& capture) {
         int n = 0,m=0;
         char filename[200];
@@ -111,7 +111,7 @@ Mat moyImgs(){
 
 	    imgs[m] = frame;
 	    if(isRunning==true && m == 3){
-		img_rgb = moyImgs();//frame;
+		img_rgb = frame;//moyImgs();//frame;
 		drawStuff(0,0);	
 	    }
 
